@@ -1,31 +1,103 @@
+// controllers/thoughtController.js
 const Thought = require('../models/Thought');
+const User = require('../models/User');
 
-module.exports = {
-  getAllThoughts(req, res) {
-    // Logic to fetch all thoughts
+const thoughtController = {
+  getAllThoughts: async (req, res) => {
+    try {
+      const thoughts = await Thought.find().populate('reactions');
+      res.json(thoughts);
+    } catch (err) {
+      res.status(500).json(err);
+    }
   },
 
-  getThoughtById(req, res) {
-    // Logic to fetch a thought by ID
+  getThoughtById: async (req, res) => {
+    try {
+      const thought = await Thought.findById(req.params.id).populate('reactions');
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought found with this ID!' });
+      }
+      res.json(thought);
+    } catch (err) {
+      res.status(500).json(err);
+    }
   },
 
-  createThought(req, res) {
-    // Logic to create a new thought
+  createThought: async (req, res) => {
+    try {
+      const thought = await Thought.create(req.body);
+      await User.findByIdAndUpdate(
+        req.body.userId,
+        { $addToSet: { thoughts: thought._id } },
+        { new: true }
+      );
+      res.status(201).json(thought);
+    } catch (err) {
+      res.status(400).json(err);
+    }
   },
 
-  updateThought(req, res) {
-    // Logic to update a thought by ID
+  updateThought: async (req, res) => {
+    try {
+      const thought = await Thought.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought found with this ID!' });
+      }
+      res.json(thought);
+    } catch (err) {
+      res.status(400).json(err);
+    }
   },
 
-  deleteThought(req, res) {
-    // Logic to delete a thought by ID
+  deleteThought: async (req, res) => {
+    try {
+      const thought = await Thought.findByIdAndDelete(req.params.id);
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought found with this ID!' });
+      }
+      await User.findByIdAndUpdate(
+        thought.userId,
+        { $pull: { thoughts: thought._id } },
+        { new: true }
+      );
+      res.json({ message: 'Thought deleted successfully!' });
+    } catch (err) {
+      res.status(500).json(err);
+    }
   },
 
-  addReaction(req, res) {
-    // Logic to add a reaction to a thought
+  addReaction: async (req, res) => {
+    try {
+      const thought = await Thought.findByIdAndUpdate(
+        req.params.thoughtId,
+        { $addToSet: { reactions: req.body.reactionId } },
+        { new: true, runValidators: true }
+      );
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought found with this ID!' });
+      }
+      res.json(thought);
+    } catch (err) {
+      res.status(400).json(err);
+    }
   },
 
-  deleteReaction(req, res) {
-    // Logic to delete a reaction from a thought
+  deleteReaction: async (req, res) => {
+    try {
+      const thought = await Thought.findByIdAndUpdate(
+        req.params.thoughtId,
+        { $pull: { reactions: req.body.reactionId } },
+        { new: true }
+      );
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought found with this ID!' });
+      }
+      res.json(thought);
+    } catch (err) {
+      res.status(400).json(err);
+    }
   }
 };
+
+module.exports = thoughtController;

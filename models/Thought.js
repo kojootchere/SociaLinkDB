@@ -1,31 +1,27 @@
-const Thought = require('../models/Thought');
+const { Schema, model } = require('mongoose');
+const ReactionSchema = require('./Reaction');  // Assuming Reaction is saved in the same directory
 
-module.exports = {
-  getAllThoughts(req, res) {
-    // Logic to fetch all thoughts
+const ThoughtSchema = new Schema({
+  thoughtText: {
+    type: String,
+    required: true,
+    maxlength: 280
   },
-
-  getThoughtById(req, res) {
-    // Logic to fetch a thought by ID
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    get: timestamp => (new Date(timestamp)).toLocaleDateString()
   },
-
-  createThought(req, res) {
-    // Logic to create a new thought
+  username: {
+    type: String,
+    required: true
   },
+  reactions: [ReactionSchema]
+});
 
-  updateThought(req, res) {
-    // Logic to update a thought by ID
-  },
+ThoughtSchema.virtual('reactionCount').get(function() {
+  return this.reactions.length;
+});
 
-  deleteThought(req, res) {
-    // Logic to delete a thought by ID
-  },
-
-  addReaction(req, res) {
-    // Logic to add a reaction to a thought
-  },
-
-  deleteReaction(req, res) {
-    // Logic to delete a reaction from a thought
-  }
-};
+const Thought = model('Thought', ThoughtSchema);
+module.exports = Thought;
