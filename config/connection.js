@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
 
-const connectionString = 'mongodb+srv://kojootchere:403HPNsbr17OZp4j@cluster0.xc20kvo.mongodb.net/SociaLinkDB';
+const connectionString = process.env.MONGODB_URI || 'mongodb+srv://kojootchere:403HPNsbr17OZp4j@cluster0.xc20kvo.mongodb.net/SociaLinkDB';
 
 const connectDB = async () => {
     try {
         await mongoose.connect(connectionString, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            useCreateIndex: true,
-            useFindAndModify: false
+           // useCreateIndex: true,
+            // useFindAndModify: false
         });
         console.log("MongoDB Connected...");
     } catch (err) {

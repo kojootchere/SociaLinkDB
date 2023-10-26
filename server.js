@@ -1,21 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const routes = require('./routes');  // assuming you have a 'routes' directory
-const cors = require('cors');  // if you need CORS support
+const routes = require('./routes');
+// const cors = require('cors');  // if you need CORS support
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json());  // for parsing application/json
-app.use(cors());  // enable CORS for all routes (adjust as needed)
+// app.use(cors());  // enable CORS for all routes (adjust as needed)
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://kojootchere:403HPNsbr17OZp4j@cluster0.xc20kvo.mongodb.net/SociaLinkDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true,
-  useFindAndModify: false
+  // useCreateIndex: true,
+  // useFindAndModify: false
 });
 
 // Connection Events
